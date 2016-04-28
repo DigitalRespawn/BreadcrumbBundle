@@ -1,0 +1,9 @@
+{% if breadcrumb is not empty %}
+	<ul>
+		{% for item in breadcrumb %}
+			<li>
+				<a href="{{ item.uri }}">{{ item.label }}</a>
+			</li>
+		{% endfor %}
+	</ul>
+{% endif %}

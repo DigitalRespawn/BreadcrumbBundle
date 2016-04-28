@@ -1,0 +1,36 @@
+digitalrespawn_breadcrumb_test:
+    resource: "@DigitalRespawnBreadcrumbBundle/Resources/config/routing.yml"
+    prefix:   /
+
+digitalrespawn_breadcrumb_test_home:
+    path:     /home
+    defaults: { _controller: DigitalRespawnBreadcrumbTestBundle:Test:home }
+    options:
+        breadcrumb:
+            label: Home
+
+digitalrespawn_breadcrumb_test_get:
+    path:     /get/{id}
+    defaults: { _controller: DigitalRespawnBreadcrumbTestBundle:Test:get }
+    requirements:
+        id: \d+
+    options:
+        breadcrumb:
+            label: Node %id%
+            label_params:
+                id: node.id
+            parent: digitalrespawn_breadcrumb_test_home
+
+digitalrespawn_breadcrumb_test_get_parent:
+    path:     /get_parent/{id}
+    defaults: { _controller: DigitalRespawnBreadcrumbTestBundle:Test:get }
+    requirements:
+        id: \d+
+    options:
+        breadcrumb:
+            label: Node %id%
+            label_params:
+                id: node.id
+            parent: digitalrespawn_breadcrumb_test_get
+            parent_params:
+                id: node.parent.id

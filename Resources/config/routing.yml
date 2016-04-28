@@ -1,0 +1,3 @@
+digitalrespawn_breadcrumb_breadcrumb:
+    path:     /breadcrumb
+    defaults: { _controller: DigitalRespawnBreadcrumbBundle:Breadcrumb:breadcrumb }

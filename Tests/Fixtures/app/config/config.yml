@@ -1,0 +1,20 @@
+imports:
+    - { resource: services.yml }
+
+framework:
+    secret:        test
+    router:        { resource: "%kernel.root_dir%/config/routing.yml" }
+    templating:    { engines: [ 'twig' ] }
+    test:          ~
+    translator:    { fallbacks: ["en"] }
+
+# Twig Configuration
+twig:
+    debug:            %kernel.debug%
+    strict_variables: %kernel.debug%
+
+# DigitalRespawnBreadcrumb Configuration
+digitalrespawn_breadcrumb:
+    trans_delimiter: "%"
+    trans_domain: "messages"
+    enable_errors: false

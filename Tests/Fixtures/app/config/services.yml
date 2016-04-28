@@ -1,0 +1,5 @@
+services:
+    digitalrespawn.breadcrumb.node_param_converter:
+        class: DigitalRespawn\BreadcrumbBundle\Tests\Fixtures\ParamConverter\NodeParamConverter
+        tags:
+            - { name: request.param_converter, converter: node_param_converter }

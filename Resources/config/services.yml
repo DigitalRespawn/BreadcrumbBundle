@@ -1,0 +1,8 @@
+services:
+    digitalrespawn.breadcrumb.breadcrumb:
+        class: DigitalRespawn\BreadcrumbBundle\Breadcrumb\Breadcrumb
+        arguments: ['%digitalrespawn.breadcrumb%', '@router', '@translator', '@request_stack', '@digitalrespawn.breadcrumb.request_param_converter']
+
+    digitalrespawn.breadcrumb.request_param_converter:
+        class: DigitalRespawn\BreadcrumbBundle\Breadcrumb\RequestParamConverter
+        arguments: ['@router', '@sensio_framework_extra.converter.manager', '@controller_resolver']
