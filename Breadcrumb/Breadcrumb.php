@@ -39,6 +39,7 @@ class Breadcrumb
 		$breadcrumb = array();
 		$routes = $this->router->getRouteCollection();
 		$masterRequest = $this->requestStack->getMasterRequest();
+		$locale = $masterRequest->getLocale();
 
 		$uri = $this->router->generate($masterRequest->attributes->get('_route'), $masterRequest->attributes->get('_route_params'));
 		$route = $routes->get($masterRequest->get('_route'));
@@ -65,7 +66,7 @@ class Breadcrumb
 				}
 
 				// Translation of the label
-				$label = $this->translator->trans($breadcrumbOptions['label'], $transParams, $transDomain, $request->getLocale());
+				$label = $this->translator->trans($breadcrumbOptions['label'], $transParams, $transDomain, $locale);
 
 				// Adding the item to the breadcrumb
 				$breadcrumb[] = array(
