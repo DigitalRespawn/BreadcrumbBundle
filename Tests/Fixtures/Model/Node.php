@@ -3,41 +3,65 @@
 namespace DigitalRespawn\BreadcrumbBundle\Tests\Fixtures\Model;
 
 /**
- * @author Vincent MARIUS <vincent.marius@digitalrespawn.com>
+ * Class Node
+ * @package DigitalRespawn\BreadcrumbBundle\Tests\Fixtures\Model
+ * @author  Vincent MARIUS <vincent.marius@digitalrespawn.com>
  */
 class Node
 {
-	protected $id;
+    /**
+     * @var int
+     */
+    protected $id;
 
-	protected $parent;
+    /**
+     * @var Node
+     */
+    protected $parent;
 
-	public function getId()
-	{
-		return $this->id;
-	}
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
-	public function setId($id)
-	{
-		$this->id = $id;
+    /**
+     * @param int $id
+     *
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
 
-		if ($id > 1) {
-			$parent = new Node();
-			$parent->setId($id - 1);
-			$this->setParent($parent);
-		}
+        if ($id > 1) {
+            $parent = new Node();
+            $parent->setId($id - 1);
+            $this->setParent($parent);
+        }
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getParent()
-	{
-		return $this->parent;
-	}
+    /**
+     * @return Node
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
 
-	public function setParent(Node $parent)
-	{
-		$this->parent = $parent;
+    /**
+     * @param Node $parent
+     *
+     * @return $this
+     */
+    public function setParent(Node $parent)
+    {
+        $this->parent = $parent;
 
-		return $this;
-	}
+        return $this;
+    }
 }

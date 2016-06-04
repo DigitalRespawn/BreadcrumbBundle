@@ -8,127 +8,168 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * @author Vincent MARIUS <vincent.marius@digitalrespawn.com>
+ * Class Breadcrumb
+ * @package DigitalRespawn\BreadcrumbBundle\Breadcrumb
+ * @author  Vincent MARIUS <vincent.marius@digitalrespawn.com>
  */
 class Breadcrumb
 {
-	protected $config;
-	protected $router;
-	protected $translator;
-	protected $requestStack;
-	protected $requestParamConverter;
+    /**
+     * @var array
+     */
+    protected $config;
 
-	public function __construct(array $config, RouterInterface $router, TranslatorInterface $translator, RequestStack $requestStack, RequestParamConverter $requestParamConverter)
-	{
-		$this->config = $config;
-		$this->router = $router;
-		$this->translator = $translator;
-		$this->requestStack = $requestStack;
-		$this->requestParamConverter = $requestParamConverter;
-	}
+    /**
+     * @var RouterInterface
+     */
+    protected $router;
 
-	/**
-	 * Generate the breadcrumb as an array
-	 *
-	 * @return array $breadcrumb : Array of item composing the breadcrumb
-	 *
-	 * @throws \Exception : Malformed routes
-	 */
-	public function getBreadcrumb()
-	{
-		$breadcrumb = array();
-		$routes = $this->router->getRouteCollection();
-		$masterRequest = $this->requestStack->getMasterRequest();
-		$locale = $masterRequest->getLocale();
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
 
-		$uri = $this->router->generate($masterRequest->attributes->get('_route'), $masterRequest->attributes->get('_route_params'));
-		$route = $routes->get($masterRequest->get('_route'));
-		$params = $masterRequest->attributes->get('_route_params');
-		$request = $this->requestParamConverter->getConvertedRequestFromRoute($route, $params);
+    /**
+     * @var RequestStack
+     */
+    protected $requestStack;
 
-		while (null !== $route) {
-			try {
-				$breadcrumbOptions = $route->getOption('breadcrumb');
-				if (null === $breadcrumbOptions) {
-					break;
-				}
-				if (!isset($breadcrumbOptions['label'])) {		// Don't display if no label
-					continue;
-				}
+    /**
+     * @var RequestParamConverter
+     */
+    protected $requestParamConverter;
 
-				$transDomain = isset($breadcrumbOptions['trans_domain']) ? $breadcrumbOptions['trans_domain'] : $this->config['trans_domain'];
-				$transDelimiter = isset($breadcrumbOptions['trans_delimiter']) ? $breadcrumbOptions['trans_delimiter'] : $this->config['trans_delimiter'];
+    /**
+     * Breadcrumb constructor.
+     *
+     * @param array                 $config                : Breadcrumb configuration
+     * @param RouterInterface       $router                : Router Service
+     * @param TranslatorInterface   $translator            : Translation Service
+     * @param RequestStack          $requestStack          : Request Stack
+     * @param RequestParamConverter $requestParamConverter : Param Converter
+     */
+    public function __construct(
+        array $config,
+        RouterInterface $router,
+        TranslatorInterface $translator,
+        RequestStack $requestStack,
+        RequestParamConverter $requestParamConverter
+    ) {
+        $this->config = $config;
+        $this->router = $router;
+        $this->translator = $translator;
+        $this->requestStack = $requestStack;
+        $this->requestParamConverter = $requestParamConverter;
+    }
 
-				if (isset($breadcrumbOptions['label_params'])) {	// Binding translation params if set
-					$transParams = $this->bindValues($request, $breadcrumbOptions['label_params'], $transDelimiter);
-				} else {
-					$transParams = array();
-				}
+    /**
+     * Generate the breadcrumb as an array
+     *
+     * @return array $breadcrumb : Array of item composing the breadcrumb
+     *
+     * @throws \Exception : Malformed routes
+     */
+    public function getBreadcrumb()
+    {
+        $breadcrumb = array();
+        $routes = $this->router->getRouteCollection();
+        $masterRequest = $this->requestStack->getMasterRequest();
+        $locale = $masterRequest->getLocale();
 
-				// Translation of the label
-				$label = $this->translator->trans($breadcrumbOptions['label'], $transParams, $transDomain, $locale);
+        $uri = $this->router->generate(
+            $masterRequest->attributes->get('_route'),
+            $masterRequest->attributes->get('_route_params')
+        );
+        $route = $routes->get($masterRequest->get('_route'));
+        $params = $masterRequest->attributes->get('_route_params');
+        $request = $this->requestParamConverter->getConvertedRequestFromRoute($route, $params);
 
-				// Adding the item to the breadcrumb
-				$breadcrumb[] = array(
-					'uri' => $uri,
-					'label' => $label
-				);
+        while (null !== $route) {
+            try {
+                $breadcrumbOptions = $route->getOption('breadcrumb');
+                if (null === $breadcrumbOptions) {
+                    break;
+                }
+                if (!isset($breadcrumbOptions['label'])) {        // Don't display if no label
+                    continue;
+                }
 
-				$route = null;
-				if (!isset($breadcrumbOptions['parent'])) {	// Stops if no parent
-					break;
-				}
+                $transDomain = isset($breadcrumbOptions['trans_domain']) ? $breadcrumbOptions['trans_domain'] : $this->config['trans_domain'];
+                $transDelimiter = isset($breadcrumbOptions['trans_delimiter']) ? $breadcrumbOptions['trans_delimiter'] : $this->config['trans_delimiter'];
 
-				if (isset($breadcrumbOptions['parent_params'])) {	// Binding parent's params if set
-					$params = $this->bindValues($request, $breadcrumbOptions['parent_params']);
-				} else {
-					$params = array();
-				}
+                if (isset($breadcrumbOptions['label_params'])) {    // Binding translation params if set
+                    $transParams = $this->bindValues($request, $breadcrumbOptions['label_params'], $transDelimiter);
+                } else {
+                    $transParams = array();
+                }
 
-				$route = $routes->get($breadcrumbOptions['parent']);	// Getting parent route
-				$request = $this->requestParamConverter->getConvertedRequestFromRoute($route, $params);	// Bind params in request
-				$uri = $this->router->generate($breadcrumbOptions['parent'], $params);	// Generating parent's URI
-			}
-			catch (\Exception $e) {
-				if (!$this->config['enable_errors']) {	// If errors are disable -> stop breadcrumb
-					$route = null;
-				} else {
-					throw new \Exception('Breadcrumb Error : Check your routes\' syntax');
-				}
-			}
-		}
+                // Translation of the label
+                $label = $this->translator->trans($breadcrumbOptions['label'], $transParams, $transDomain, $locale);
 
-		return array_reverse($breadcrumb);
-	}
+                // Adding the item to the breadcrumb
+                $breadcrumb[] = array(
+                    'uri' => $uri,
+                    'label' => $label,
+                );
 
-	/**
-	 * Bind values from request to an array of params
-	 *
-	 * @param Request $request : The request with converted params
-	 * @param array $binding : Associative array of elements to bind
-	 *
-	 * @return array $params : Bound values
-	 */
-	public function bindValues(Request $request, array $binding, $delimiter = '')
-	{
-		$params = array();
+                $route = null;
+                if (!isset($breadcrumbOptions['parent'])) {    // Stops if no parent
+                    break;
+                }
 
-		if (count($binding) > 0) {
-			foreach ($binding as $key => $value) {
-				$binding = explode('.', $value);
-				$object = $request->get($binding[0]);
-				for ($i = 1; $i < count($binding); ++$i) {
-					if (is_array($object)) {
-						$object = $object[$i];
-					} else {
-						$getter = 'get' . ucfirst($binding[$i]);
-						$object = $object->$getter();
-					}
-				}
-				$params[$delimiter . $key . $delimiter] = $object;
-			}
-		}
+                if (isset($breadcrumbOptions['parent_params'])) {    // Binding parent's params if set
+                    $params = $this->bindValues($request, $breadcrumbOptions['parent_params']);
+                } else {
+                    $params = array();
+                }
 
-		return $params;
-	}
+                $route = $routes->get($breadcrumbOptions['parent']);    // Getting parent route
+                $request = $this->requestParamConverter->getConvertedRequestFromRoute(
+                    $route,
+                    $params
+                );    // Bind params in request
+                $uri = $this->router->generate($breadcrumbOptions['parent'], $params);    // Generating parent's URI
+            } catch (\Exception $e) {
+                if (!$this->config['enable_errors']) {    // If errors are disable -> stop breadcrumb
+                    $route = null;
+                } else {
+                    throw new \Exception('Breadcrumb Error : Check your routes\' syntax');
+                }
+            }
+        }
+
+        return array_reverse($breadcrumb);
+    }
+
+    /**
+     * Bind values from request to an array of params
+     *
+     * @param Request $request   : The request with converted params
+     * @param array   $binding   : Associative array of elements to bind
+     * @param string  $delimiter : Delimiter used to match param's name
+     *
+     * @return array $params : Bound values
+     */
+    public function bindValues(Request $request, array $binding, $delimiter = '')
+    {
+        $params = array();
+
+        if (count($binding) > 0) {
+            foreach ($binding as $key => $value) {
+                $binding = explode('.', $value);
+                $object = $request->get($binding[0]);
+                for ($i = 1; $i < count($binding); ++$i) {
+                    if (is_array($object)) {
+                        $object = $object[$i];
+                    } else {
+                        $getter = 'get'.ucfirst($binding[$i]);
+                        $object = $object->$getter();
+                    }
+                }
+                $params[$delimiter.$key.$delimiter] = $object;
+            }
+        }
+
+        return $params;
+    }
 }

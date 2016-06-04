@@ -8,7 +8,9 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
 /**
- * @author Vincent MARIUS <vincent.marius@digitalrespawn.com>
+ * Class DigitalRespawnBreadcrumbExtension
+ * @package DigitalRespawn\BreadcrumbBundle\DependencyInjection
+ * @author  Vincent MARIUS <vincent.marius@digitalrespawn.com>
  */
 class DigitalRespawnBreadcrumbExtension extends Extension
 {
@@ -20,14 +22,17 @@ class DigitalRespawnBreadcrumbExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-		$container->setParameter('digitalrespawn.breadcrumb', $config);
+        $container->setParameter('digitalrespawn.breadcrumb', $config);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
     }
 
-	public function getAlias()
-	{
-		return 'digitalrespawn_breadcrumb';
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function getAlias()
+    {
+        return 'digitalrespawn_breadcrumb';
+    }
 }

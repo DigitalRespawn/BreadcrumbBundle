@@ -21,6 +21,20 @@ digitalrespawn_breadcrumb_test_get:
                 id: node.id
             parent: digitalrespawn_breadcrumb_test_home
 
+digitalrespawn_breadcrumb_test_get_multi_param:
+    path:     /get/{id}/{param}
+    defaults: { _controller: DigitalRespawnBreadcrumbTestBundle:Test:get }
+    requirements:
+        id: \d+
+        id: .+
+    options:
+        breadcrumb:
+            label: Node %id%
+            label_params:
+                id: node.id
+                param: param
+            parent: digitalrespawn_breadcrumb_test_home
+
 digitalrespawn_breadcrumb_test_get_parent:
     path:     /get_parent/{id}
     defaults: { _controller: DigitalRespawnBreadcrumbTestBundle:Test:get }
