@@ -29,7 +29,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('messages')
                 ->end()
                 ->booleanNode('enable_errors')
-                    ->defaultTrue()
+                    ->defaultFalse()
                 ->end()
                 ->scalarNode('template')
                     ->defaultValue('DigitalRespawnBreadcrumbBundle:Breadcrumb:breadcrumb.html.twig')
