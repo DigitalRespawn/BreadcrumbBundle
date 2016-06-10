@@ -76,65 +76,73 @@ class Breadcrumb
         $masterRequest = $this->requestStack->getMasterRequest();
         $locale = $masterRequest->getLocale();
 
-        $uri = $this->router->generate(
-            $masterRequest->attributes->get('_route'),
-            $masterRequest->attributes->get('_route_params')
-        );
-        $route = $routes->get($masterRequest->get('_route'));
-        $params = $masterRequest->attributes->get('_route_params');
-        $request = $this->requestParamConverter->getConvertedRequestFromRoute($route, $params);
+        try {
+            $uri = $this->router->generate(
+                $masterRequest->attributes->get('_route'),
+                $masterRequest->attributes->get('_route_params')
+            );
+            $route = $routes->get($masterRequest->get('_route'));
+            $params = $masterRequest->attributes->get('_route_params');
+            $request = $this->requestParamConverter->getConvertedRequestFromRoute($route, $params);
 
-        while (null !== $route) {
-            try {
-                $breadcrumbOptions = $route->getOption('breadcrumb');
-                if (null === $breadcrumbOptions) {
-                    break;
-                }
-                if (!isset($breadcrumbOptions['label'])) {        // Don't display if no label
-                    continue;
-                }
+            while (null !== $route) {
+                try {
+                    $breadcrumbOptions = $route->getOption('breadcrumb');
+                    if (null === $breadcrumbOptions) {
+                        break;
+                    }
+                    if (!isset($breadcrumbOptions['label'])) {        // Don't display if no label
+                        continue;
+                    }
 
-                $transDomain = isset($breadcrumbOptions['trans_domain']) ? $breadcrumbOptions['trans_domain'] : $this->config['trans_domain'];
-                $transDelimiter = isset($breadcrumbOptions['trans_delimiter']) ? $breadcrumbOptions['trans_delimiter'] : $this->config['trans_delimiter'];
+                    $transDomain = isset($breadcrumbOptions['trans_domain']) ? $breadcrumbOptions['trans_domain'] : $this->config['trans_domain'];
+                    $transDelimiter = isset($breadcrumbOptions['trans_delimiter']) ? $breadcrumbOptions['trans_delimiter'] : $this->config['trans_delimiter'];
 
-                if (isset($breadcrumbOptions['label_params'])) {    // Binding translation params if set
-                    $transParams = $this->bindValues($request, $breadcrumbOptions['label_params'], $transDelimiter);
-                } else {
-                    $transParams = array();
-                }
+                    if (isset($breadcrumbOptions['label_params'])) {    // Binding translation params if set
+                        $transParams = $this->bindValues($request, $breadcrumbOptions['label_params'], $transDelimiter);
+                    } else {
+                        $transParams = array();
+                    }
 
-                // Translation of the label
-                $label = $this->translator->trans($breadcrumbOptions['label'], $transParams, $transDomain, $locale);
+                    // Translation of the label
+                    $label = $this->translator->trans($breadcrumbOptions['label'], $transParams, $transDomain, $locale);
 
-                // Adding the item to the breadcrumb
-                $breadcrumb[] = array(
-                    'uri' => $uri,
-                    'label' => $label,
-                );
+                    // Adding the item to the breadcrumb
+                    $breadcrumb[] = array(
+                        'uri' => $uri,
+                        'label' => $label,
+                    );
 
-                $route = null;
-                if (!isset($breadcrumbOptions['parent'])) {    // Stops if no parent
-                    break;
-                }
-
-                if (isset($breadcrumbOptions['parent_params'])) {    // Binding parent's params if set
-                    $params = $this->bindValues($request, $breadcrumbOptions['parent_params']);
-                } else {
-                    $params = array();
-                }
-
-                $route = $routes->get($breadcrumbOptions['parent']);    // Getting parent route
-                $request = $this->requestParamConverter->getConvertedRequestFromRoute(
-                    $route,
-                    $params
-                );    // Bind params in request
-                $uri = $this->router->generate($breadcrumbOptions['parent'], $params);    // Generating parent's URI
-            } catch (\Exception $e) {
-                if (!$this->config['enable_errors']) {    // If errors are disable -> stop breadcrumb
                     $route = null;
-                } else {
-                    throw new \Exception('Breadcrumb Error : Check your routes\' syntax');
+                    if (!isset($breadcrumbOptions['parent'])) {    // Stops if no parent
+                        break;
+                    }
+
+                    if (isset($breadcrumbOptions['parent_params'])) {    // Binding parent's params if set
+                        $params = $this->bindValues($request, $breadcrumbOptions['parent_params']);
+                    } else {
+                        $params = array();
+                    }
+
+                    $route = $routes->get($breadcrumbOptions['parent']);    // Getting parent route
+                    $request = $this->requestParamConverter->getConvertedRequestFromRoute(
+                        $route,
+                        $params
+                    );    // Bind params in request
+                    $uri = $this->router->generate($breadcrumbOptions['parent'], $params);    // Generating parent's URI
+                } catch (\Exception $e) {
+                    if (!$this->config['enable_errors']) {    // If errors are disable -> stop breadcrumb
+                        $route = null;
+                    } else {
+                        throw new \Exception('Breadcrumb Error : Check your routes\' syntax');
+                    }
                 }
+            }
+        } catch (\Exception $e) {
+            if (!$this->config['enable_errors']) {    // If errors are disable -> stop breadcrumb
+                return array();
+            } else {
+                throw $e;
             }
         }
 
