@@ -2,6 +2,7 @@
 
 namespace DigitalRespawn\BreadcrumbBundle\Breadcrumb;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterManager;
 use Symfony\Component\HttpFoundation\Request;
@@ -102,12 +103,6 @@ class RequestParamConverter
      */
     protected function getRequestWithConvertedParams($controller, Request $request)
     {
-        $configurations = array();
-        if ($configuration = $request->attributes->get('_converters')) {
-            foreach (is_array($configuration) ? $configuration : array($configuration) as $configuration) {
-                $configurations[$configuration->getName()] = $configuration;
-            }
-        }
         if (is_array($controller)) {
             $r = new \ReflectionMethod($controller[0], $controller[1]);
         } elseif (is_object($controller) && is_callable($controller, '__invoke')) {
@@ -116,6 +111,21 @@ class RequestParamConverter
             $r = new \ReflectionFunction($controller);
         }
 
+        $reader = new AnnotationReader();
+        $converters = array();
+        foreach ($reader->getMethodAnnotations($r) as $annotation) {
+            if ($annotation instanceof ParamConverter) {
+                $converters[] = $annotation;
+            }
+        }
+        $request->attributes->set('_converters', $converters);
+
+        $configurations = array();
+        if ($configuration = $request->attributes->get('_converters')) {
+            foreach (is_array($configuration) ? $configuration : array($configuration) as $configuration) {
+                $configurations[$configuration->getName()] = $configuration;
+            }
+        }
         $configurations = $this->autoConfigure($r, $request, $configurations);
         $this->paramConverterManager->apply($request, $configurations);
 
