@@ -155,7 +155,7 @@ Set your breadcrumb template path in "app/config.yml"
 ``` yml
 # app/config.yml
 digitalrespawn_breadcrumb:
-	template: "AcmeAppBundle:Breadcrumb:breadcrumb.html.twig"
+    template: "AcmeAppBundle:Breadcrumb:breadcrumb.html.twig"
 ```
 
 Or define a new template in "app/Resources"
@@ -177,7 +177,7 @@ If you need to redefine a default delimiter for your label parameters:
 ``` yml
 # app/config.yml
 digitalrespawn_breadcrumb:
-    trans_delimiter: %				# delimiter used to translate vars (ex: 'Hello %username%')
+    trans_delimiter: %                  # delimiter used to translate vars (ex: 'Hello %username%')
 ```
 If you need to redefine a specific delimiter for your route parameters:
 
@@ -185,10 +185,10 @@ If you need to redefine a specific delimiter for your route parameters:
 # routing.yml
 acme_route_example:
     # ...
-	options:
-		breadcrumb:
-			trans_delimiter: %		# delimiter used to translate vars (ex: 'Hello %username%')
-		    # ...
+    options:
+        breadcrumb:
+            trans_delimiter: %		# delimiter used to translate vars (ex: 'Hello %username%')
+            # ...
 ```
 
 #### Translation domain
@@ -198,7 +198,7 @@ If you need to redefine a default translation domain for your label parameters :
 ``` yml
 # app/config.yml
 digitalrespawn_breadcrumb:
-    trans_domain: admin			    # default domain used to translate labels
+    trans_domain: admin                 # default domain used to translate labels
 ```
 If you need to redefine a specific delimiter for your route parameters:
 
@@ -206,8 +206,8 @@ If you need to redefine a specific delimiter for your route parameters:
 # routing.yml
 acme_route_example:
     # ...
-	options:
-		breadcrumb:
-			trans_domain: admin		# domain used for this route's label translation
-		    # ...
+    options:
+        breadcrumb:
+            trans_domain: admin		# domain used for this route's label translation
+            # ...
 ```
